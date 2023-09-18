@@ -1,0 +1,25 @@
+############## Emoji ##############
+✅ : Done
+⏩ : Working on
+❌ : Problem. Need help
+
+############## Status ##############
+- Implement basic func
+    - preprocessing ✅
+    - timeline ✅
+    - recommendation
+- Develop each func
+    - preprocessing: dark, shaking, noise ✅ -> check performace
+    - timeline: train model ⏩
+
+[Timeline]⏩
+- Upload dataset in Huggingface
+- Train timeline detection model and explanation generation model 
+- Compare with the result using scenedetect 
+
+[Recommendation]
+- Define category using explanation result
+- Investigate category characteristic
+
+[Prototype]
+- Make prototype using streamlit
