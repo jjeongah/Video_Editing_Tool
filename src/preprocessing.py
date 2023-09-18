@@ -1,6 +1,7 @@
 import cv2
 import argparse
 from omegaconf import OmegaConf
+import os
 
 import logging
 logging.basicConfig(level=logging.INFO)
@@ -9,9 +10,13 @@ logger = logging.getLogger(__name__)
 def main(args):
     config = OmegaConf.load(f"../config/{args.config}.yaml")
     input_video_path = config.path.data.input
-    output_video_path = config.path.data.output
-    log_file_path = config.path.data.log  # Path to the text log file
+    output_video_path = config.path.data.preprocessing_output
+    log_file_path = config.path.log.preprocessing_log  # Path to the text log file
 
+    # Create the output directory if it doesn't exist.
+    os.makedirs(output_video_path[:15], exist_ok=True)
+    os.makedirs(log_file_path[:7], exist_ok=True)
+    
     # Load the video file
     cap = cv2.VideoCapture(input_video_path)
     ret, frame = cap.read()
