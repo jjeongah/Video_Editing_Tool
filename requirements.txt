@@ -1,6 +1,7 @@
-opencv-python
+opencv-python-headless
 argparse==1.4.0
 omegaconf==2.1.1
 numpy==1.19.5
 matplotlib==3.4.3
 requests==2.26.0
+scenedetect
