@@ -26,6 +26,9 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
+### Run
+Locate in `/src/` folder
 ```
-python main.py -c custom_config
+python FILE_NAME -c custom_config 
+# ex: python preprocessing.py -c custom_config
 ```

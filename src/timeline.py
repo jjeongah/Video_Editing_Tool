@@ -1,5 +1,3 @@
-import cv2
-import scenedetect
 from scenedetect import VideoManager
 from scenedetect import SceneManager
 from scenedetect.detectors import ContentDetector
@@ -12,6 +10,16 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def main(args):
+    """
+    Perform scene detection on a video and save the scene list to a text file.
+
+    Args:
+        args (argparse.Namespace): Command-line arguments.
+
+    This function uses the PySceneDetect library to detect scenes in a video and
+    saves the scene list to a text file specified in the configuration file.
+
+    """
     config = OmegaConf.load(f"../config/{args.config}.yaml")
     input_video_path = config.path.data.preprocessing_output
     output_scene_list_path = config.path.log.timeline_log

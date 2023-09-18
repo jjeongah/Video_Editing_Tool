@@ -8,6 +8,12 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def main(args):
+    """
+    Process a video, saving frames that meet a quality threshold and logging the process.
+
+    Args:
+        args (argparse.Namespace): Command-line arguments.
+    """
     config = OmegaConf.load(f"../config/{args.config}.yaml")
     input_video_path = config.path.data.input
     output_video_path = config.path.data.preprocessing_output

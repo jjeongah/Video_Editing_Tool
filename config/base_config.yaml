@@ -3,6 +3,7 @@ path:
     input: '../data/input/input_video.mp4'
     preprocessing_output: '../data/output/preprocessing_output_video.mp4'
     timeline_output: '../data/output/timeline_output_video.mp4'
+    shorts_output: '../data/short_clips/'
   log:
     preprocessing_log: '../log/processing_info.txt'
     timeline_log: '../log/timeline_info.txt'
