@@ -1,0 +1,4 @@
+path:
+  data:
+    input: './data/input/input_video.mp4'
+    output: './data/output/output_video.mp4'
