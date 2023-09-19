@@ -1,105 +1,75 @@
 import argparse
 from omegaconf import OmegaConf
+import torch
+from torch.utils.data import Dataset, DataLoader
+from data_loader.data_loader import TimelineDataset
+from model.model import TimelineDetectionModel
 import os
+import json
 
 import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-import torch
-import torch.nn as nn
-from transformers import BertPreTrainedModel, BertModel, BertTokenizer  # Import the tokenizer
-from torch.utils.data import DataLoader, Dataset
-from transformers import AdamW
-import json
-from data_loader.data_loader import CustomDataset
-from model.model import TimelineDetectionModel
-
 def main(config):
     # 🆘
-    # Load your JSON data and create an instance of CustomDataset
-    with open("your_json_file.json", "r") as json_file:
-        data = json.load(json_file)
+    config = OmegaConf.load(f"../config/{args.config}.yaml")
+    data_dir = config.train.input_path 
+    all_data = []
 
-    dataset = CustomDataset(data)
+    for filename in os.listdir(data_dir):
+        if filename.endswith(".json"):
+            file_path = os.path.join(data_dir, filename)
+            with open(file_path, "r") as json_file:
+                data = json.load(json_file)
+            all_data.append(data)
 
-    # Create a DataLoader for the dataset
-    batch_size = 32  # Adjust this based on your needs
-    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+    # 데이터를 하나의 리스트로 결합
+    combined_data = []
+    for data in all_data:
+        combined_data.extend(data)
 
-    # Initialize the model
-    model = TimelineDetectionModel.from_pretrained("bert-base-uncased", num_labels=8)  # Adjust num_labels as needed
+    # 데이터를 TimelineDataset으로 변환
+    dataset = TimelineDataset(combined_data)
+    dataloader = DataLoader(dataset, batch_size=32, shuffle=True)
 
-    # Define the optimizer and loss function
-    optimizer = AdamW(model.parameters(), lr=2e-5)
-    loss_fn = nn.CrossEntropyLoss()
+    # 모델 및 손실 함수, 옵티마이저 정의
+    input_size = 1  # 입력 특성 수 (예: 시간대)
+    hidden_size = 64  # LSTM의 은닉 상태 크기
+    num_classes = 1  # 이진 분류 문제이므로 클래스 수는 1
 
-    # Tokenizer
-    tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
+    model = TimelineDetectionModel(input_size, hidden_size, num_classes)
+    criterion = torch.nn.BCEWithLogitsLoss()  # 이진 분류 손실
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
-    # Training loop
-    num_epochs = 10  # Adjust as needed
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model.to(device)
-    model.train()
+    # 학습 루프
+    num_epochs = 10
 
     for epoch in range(num_epochs):
-        total_loss = 0
         for batch in dataloader:
-            start_times = batch["start_time"]
-            end_times = batch["end_time"]
-            attributes = batch["attributes"]
-            labels = batch["label"]
+            # 데이터 및 레이블 추출
+            timeline_data = batch["timeline_data"]
+            video_length = batch["video_length"]
 
-            # Tokenize your text data, prepare tensors, and send them to the device
+            # 모델 입력 데이터 생성
+            inputs = torch.tensor([[(end_time - start_time) / video_length] for start_time, end_time, _ in timeline_data], dtype=torch.float32)
 
+            # 모델 출력 계산
+            outputs = model(inputs)
+
+            # 라벨 데이터 생성 (이진 분류)
+            labels = torch.tensor([1 if label == "category" else 0 for _, _, label in timeline_data], dtype=torch.float32)
+
+            # 손실 계산 및 역전파
+            loss = criterion(outputs, labels.view(-1, 1))
             optimizer.zero_grad()
-            outputs = model(input_ids, attention_mask=attention_mask)
-            logits = outputs.logits
-
-            # Modify the loss calculation based on your specific task
-            loss = loss_fn(logits, labels)
-
             loss.backward()
             optimizer.step()
-            total_loss += loss.item()
 
-        print(f"Epoch {epoch+1}/{num_epochs}, Loss: {total_loss:.4f}")
+        print(f"Epoch {epoch + 1}/{num_epochs}, Loss: {loss.item()}")
 
-    # Save the trained model
-    model.save_pretrained("timeline_detection_model")
-
-    # Inference
-    model.eval()
-
-    # TODO: Prepare dataset
-    # Assuming you have new video data to predict on (X_test_videos)
-    X_test_videos = [...]  # Your new video data
-
-    # Tokenize and evaluate (similar to your previous code)
-    for video_text in X_test_videos:
-        tokens = tokenizer.encode_plus(
-            video_text,
-            add_special_tokens=True,
-            max_length=128,  # Adjust as needed
-            pad_to_max_length=True,
-            return_attention_mask=True,
-            return_tensors="pt"
-        )
-
-        input_ids = tokens["input_ids"].to(device)
-        attention_mask = tokens["attention_mask"].to(device)
-
-        with torch.no_grad():
-            outputs = model(input_ids, attention_mask=attention_mask)
-            logits = outputs.logits
-            probabilities = torch.softmax(logits, dim=1)
-            predicted_class = torch.argmax(probabilities, dim=1).item()
-
-        if predicted_class == 0:
-            print("Timeline Detected")
-        else:
-            print("Explanation Detected")
+        # 학습된 모델 저장 (필요하면)
+        torch.save(model.state_dict(), "timeline_detection_model.pth")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
