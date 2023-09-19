@@ -1,0 +1,30 @@
+############## Emoji ##############
+✅ : Done
+⏩ : Working on
+❌ : Problem. Need help
+🆘 : Need Testing
+
+############## Status ##############
+[Essential Implementation]
+    - preprocessing ✅
+    - timeline ✅
+    - recommendation
+
+[Func1 - Preprocessing development]
+    - Specification: dark, shaking, noise ✅ 
+    - Need to check performace
+
+[Func2- Timeline development]⏩
+- Upload dataset
+- Train timeline detection model and explanation generation model 
+- Compare with the result using scenedetect 
+
+[Func3- Recommendation implementation]
+- Define category using explanation result
+- Investigate category characteristic
+
+[Prototype]
+- Make prototype using streamlit
+
+[Etc]
+- Basic EDA ✅ 
