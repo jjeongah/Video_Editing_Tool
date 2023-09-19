@@ -1,6 +1,7 @@
 from torch.utils.data import Dataset
 
 class CustomDataset(Dataset):
+    # 🆘
     def __init__(self, json_data):
         self.data = json_data["metadata"]
         self.timelines = json_data["timelines"]

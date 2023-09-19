@@ -2,6 +2,7 @@ import torch.nn as nn
 from transformers import BertPreTrainedModel, BertModel
 
 class TimelineDetectionModel(BertPreTrainedModel):
+    # 🆘
     def __init__(self, config):
         super(TimelineDetectionModel, self).__init__(config)
         self.num_labels = config.num_labels

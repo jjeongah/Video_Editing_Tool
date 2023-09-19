@@ -2,6 +2,7 @@
 ✅ : Done
 ⏩ : Working on
 ❌ : Problem. Need help
+🆘 : Need Testing
 
 ############## Status ##############
 [Essential Implementation]

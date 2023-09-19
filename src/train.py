@@ -16,7 +16,7 @@ from data_loader.data_loader import CustomDataset
 from model.model import TimelineDetectionModel
 
 def main(config):
-    # TODO: Change to loading from huggingface
+    # 🆘
     # Load your JSON data and create an instance of CustomDataset
     with open("your_json_file.json", "r") as json_file:
         data = json.load(json_file)
