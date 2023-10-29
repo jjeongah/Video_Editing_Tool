@@ -16,16 +16,6 @@
 ## Modeling
 
 ## How to Run
-### Virtual Environment
-```
-# Create and activate a virtual environment
-python -m venv venv
-source venv/bin/activate 
-
-# Install project dependencies
-pip install -r requirements.txt
-```
-
 ### Run
 Locate in `/src/` folder
 ```
