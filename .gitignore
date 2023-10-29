@@ -1,4 +1,5 @@
 venv/
 log/
-*.mp4
 *.png
+data/output
+data/short_clips

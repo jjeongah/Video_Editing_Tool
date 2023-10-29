@@ -21,6 +21,7 @@ def is_dark(frame, brightness_threshold):
     """
     # Convert the frame to grayscale
     gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    
     # Calculate the average brightness
     avg_brightness = cv2.mean(gray_frame)[0]
     return avg_brightness < brightness_threshold
@@ -88,14 +89,14 @@ def main(args):
     os.makedirs(log_file_path[:7], exist_ok=True)
 
     # TODO: Handle threshold values and boolean info through config file
-    brightness_bool = False
-    motion_bool = False
-    noise_bool = False
+    brightness_bool = config.preprocessing.brightness_bool
+    motion_bool = config.preprocessing.motion_bool
+    noise_bool = config.preprocessing.noise_bool
     
-    quality_threshold = 50
-    brightness_threshold = 100
-    motion_threshold = 5
-    noise_threshold = 50
+    quality_threshold = config.preprocessing.quality_threshold
+    brightness_threshold = config.preprocessing.brightness_threshold
+    motion_threshold = config.preprocessing.motion_threshold
+    noise_threshold = config.preprocessing.noise_threshold
 
     cap = cv2.VideoCapture(input_video_path)
     ret, frame = cap.read()
@@ -112,15 +113,19 @@ def main(args):
 
     frame_count = 0
     saved_frame_count = 0
+    frame_interval = 1.0 / fps  # Time duration per frame
 
+    # Create a tqdm progress bar
+    progress_bar = tqdm(total=int(cap.get(cv2.CAP_PROP_FRAME_COUNT)))
+                    
     logger.info("🔥 Processing starts.")
 
     with open(log_file_path, 'w') as log_file:
-        for _ in tqdm(range(int(cap.get(cv2.CAP_PROP_FRAME_COUNT)))):
+        while True:
             ret, frame = cap.read()
 
             if not ret:
-                logger.warning(f"Reached the end of the video or encountered an issue while reading the video. Folder name: {input_video_path}")
+                logger.warning(f"Reached the end of the video or encountered an issue while reading the video. File path: {input_video_path}")
                 break
 
             frame_quality = cv2.mean(frame)[0]
@@ -128,23 +133,21 @@ def main(args):
 
             if frame_quality < quality_threshold:
                 exclude_reasons.append("Quality below threshold")
-            
+
             if brightness_bool and is_dark(frame, brightness_threshold):
                 exclude_reasons.append("Dark frame")
-            
+
             if motion_bool and is_shaky(frame, prev_frame, motion_threshold):
                 exclude_reasons.append("Shaky frame")
-            
+
             if noise_bool and is_noisy(frame, noise_threshold):
                 exclude_reasons.append("Noisy frame")
 
-            if exclude_reasons:
-                # Log exclusion reasons
-                log_file.write(f"Deleted frame at time {frame_count / fps} seconds. Reasons: {', '.join(exclude_reasons)}\n")
-            else:
+            if not exclude_reasons:
                 out.write(frame)
                 saved_frame_count += 1
-                log_file.write(f"Saved frame at time {frame_count / fps} seconds. Reason: Quality above threshold.\n")
+            else:
+                log_file.write(f"Deleted frame at time {frame_count * frame_interval:.2f} seconds. Reasons: {', '.join(exclude_reasons)}\n")
 
             frame_count += 1
             prev_frame = frame
@@ -152,7 +155,14 @@ def main(args):
             if frame_count % 10 == 0:
                 logger.info(f"Processed {frame_count} frames, Saved {saved_frame_count} frames")
 
+            # Update the tqdm progress bar
+            progress_bar.update(1)
+
+        # Close the tqdm progress bar
+        progress_bar.close()
+
     logger.info("🔥 Processing complete.")
+    logger.info(f"Output video duration: {saved_frame_count * frame_interval:.2f} seconds")
     logger.info(f"Processed {frame_count} frames, Saved {saved_frame_count} frames")
 
     cap.release()

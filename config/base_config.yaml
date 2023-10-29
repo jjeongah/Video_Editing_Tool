@@ -13,3 +13,12 @@ path:
 train:
   input_path: '../data/train/'
   output_path: '../output/'
+
+preprocessing:
+  brightness_bool: False
+  motion_bool: False
+  noise_bool: False
+  quality_threshold: 30
+  brightness_threshold: 30
+  motion_threshold: 30
+  noise_threshold: 30

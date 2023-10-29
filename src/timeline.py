@@ -5,6 +5,10 @@ import argparse
 from omegaconf import OmegaConf
 import os
 
+from google.cloud import speech
+from google.cloud.speech import enums
+from google.cloud.speech import types
+
 import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -42,6 +46,19 @@ def main(args):
     scene_manager.detect_scenes(frame_source=video_manager) # Perform scene detection.
     scene_list = scene_manager.get_scene_list() # Create the scene list.
 
+    # TODO: 
+    # 1. By using Google Speech-to-Text API, convert speech into text
+    # 2. Summarize the alternative text for each timeline
+    
+    # Initialize the Google Speech-to-Text client
+    client = speech.SpeechClient()
+    
+    # TODO: 
+    # 1. By using Pillow library, let's use screen capture to extract screen information as text
+    # 2. Additionally, when extracting screen capture using the Pillow library, also use additional computer vision technology to better detect text or important objects on the screen. 
+    # For example, use Tesseract OCR to extract text displayed on the screen.
+    
+    
     # Print the scene list.
     with open(output_scene_list_path, 'w') as f:
         for i, scene in enumerate(scene_list):
