@@ -16,9 +16,15 @@
 ## Modeling
 
 ## How to Run
-### Run
+### Run source code
 Locate in `/src/` folder
 ```
 python FILE_NAME -c custom_config 
 # ex: python preprocessing.py -c custom_config
+```
+### Run streamlit
+Locate in `/app/` folder and open cmd Terminal
+```
+streamlit run FILE_NAME
+# ex. streamlit run main.py
 ```
