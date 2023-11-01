@@ -1,9 +1,10 @@
 import streamlit as st
 from preprocessing import preprocessing
+from timeline import timeline
 from io import BytesIO
 
 st.title("Video Editing Tool")
-st.header("Please upload a video or enter a YouTube URL")
+st.header("STEP 1: Please upload a video or enter a YouTube URL")
 
 # Initialize step variable
 current_step = 1
@@ -18,6 +19,7 @@ if upload_option == "Upload Video":
         video_url = uploaded_file
         current_step = 2
         st.success("Video processing complete! Move onto processing step.")
+        st.markdown('---')  # Add a horizontal rule
 
 elif upload_option == "YouTube URL":
     youtube_url = st.text_input("Enter YouTube URL")
@@ -25,10 +27,10 @@ elif upload_option == "YouTube URL":
         video_url = youtube_url
         current_step = 2
         st.success("Video processing complete! Move onto processing step.")
-
+        st.markdown('---')  # Add a horizontal rule
 # ===================== Step 2: Set Preprocessing Parameters =====================
 if current_step == 2:
-    st.header("Preprocessing Parameters")
+    st.header("STEP 2-1: Choose preprocessing Parameters")
 
     # Load the video for preview
     st.subheader("Video Preview")
@@ -72,7 +74,6 @@ if current_step == 2:
     # Disable UI elements if processing has started
     if processing_started:
         st.write("Processing has started. Parameters cannot be modified.")
-        
 # ===================== Step 3: Display Processed Video or Results =====================
 if current_step == 3:
     # Display selected parameter information
@@ -81,10 +82,11 @@ if current_step == 3:
     st.write(f"Brightness Filter: {brightness_bool} (Threshold: {brightness_threshold})")
     st.write(f"Motion Filter: {motion_bool} (Threshold: {motion_threshold})")
     st.write(f"Noise Filter: {noise_bool} (Threshold: {noise_threshold})")
+    st.markdown('---')  # Add a horizontal rule
     
     output_video_path, log_file_path = preprocessing(video_url, quality_bool, quality_threshold, brightness_bool, brightness_threshold, motion_bool, motion_threshold, noise_bool, noise_threshold)
 
-    st.header("Processed Video or Results")
+    st.header("STEP 2-2: Processed Video or Results")
 
     # Display the processed video
     st.video(output_video_path, format="video/mp4", start_time=0)
@@ -94,7 +96,5 @@ if current_step == 3:
         reasons = log_file.read()
         st.text("Frame Exclusion Reasons:")
         st.text(reasons)
-
-
-# You can continue adding more steps as needed by incrementing the current_step variable
-
+    st.markdown('---')  # Add a horizontal rule
+# ===================== Step 4: Display Processed Video or Results =====================

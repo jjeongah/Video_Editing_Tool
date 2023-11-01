@@ -117,6 +117,8 @@ def preprocessing(uploaded_file, quality_bool, quality_threshold, brightness_boo
                     
     logger.info("🔥 Processing starts.")
 
+    deleted_frames = []  # Store deleted frame information
+
     with open(log_file_path, 'w') as log_file:
         while True:
             ret, frame = cap.read()
@@ -144,7 +146,13 @@ def preprocessing(uploaded_file, quality_bool, quality_threshold, brightness_boo
                 out.write(frame)
                 saved_frame_count += 1
             else:
-                log_file.write(f"Deleted frame at time {frame_count * frame_interval:.2f} seconds. Reasons: {', '.join(exclude_reasons)}\n")
+                if not deleted_frames:
+                    deleted_frames.append((frame_count * frame_interval, exclude_reasons[0]))
+                else:
+                    last_deleted_time, last_deleted_reason = deleted_frames[-1]
+                    if exclude_reasons[0] != last_deleted_reason:
+                        deleted_frames[-1] = (last_deleted_time, f"{last_deleted_reason} - {exclude_reasons[0]}")
+                    deleted_frames[-1] = (last_deleted_time, exclude_reasons[0])
 
             frame_count += 1
             prev_frame = frame
@@ -157,6 +165,10 @@ def preprocessing(uploaded_file, quality_bool, quality_threshold, brightness_boo
 
         # Close the tqdm progress bar
         progress_bar.close()
+
+        # Log the deleted frames
+        for time, reason in deleted_frames:
+            log_file.write(f"Deleted frame at time {time:.2f} seconds. Reasons: {reason}\n")
 
     logger.info("🔥 Processing complete.")
     logger.info(f"Output video duration: {saved_frame_count * frame_interval:.2f} seconds")

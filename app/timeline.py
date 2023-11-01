@@ -9,7 +9,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def main(args):
+def timeline(args):
     """
     Perform scene detection on a video and save the scene list to a text file.
 
@@ -58,9 +58,3 @@ def main(args):
             f.write(f"Scene {i + 1}: Start frame {scene[0]} - End frame {scene[1]}\n")
 
     video_manager.release() # Release the video manager.
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--config", "-c", type=str, default="base_config")
-    args, _ = parser.parse_known_args()
-    main(args)
