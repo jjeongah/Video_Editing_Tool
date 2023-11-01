@@ -1,8 +1,7 @@
 import cv2
-import argparse
-from omegaconf import OmegaConf
 import os
 from tqdm import tqdm 
+import tempfile
 
 import logging
 logging.basicConfig(level=logging.INFO)
@@ -72,38 +71,36 @@ def is_noisy(frame, noise_threshold):
 
     return mean_diff > noise_threshold
 
-def main(args):
+def preprocessing(uploaded_file, quality_bool, quality_threshold, brightness_bool, brightness_threshold, motion_bool, motion_threshold, noise_bool, noise_threshold):
     """
     Process a video, saving frames that meet a quality threshold and logging the process.
 
     Args:
-        args (argparse.Namespace): Command-line arguments.
+        uploaded_file (UploadedFile): Uploaded video file.
+        quality_threshold (float): Threshold for quality.
+        brightness_bool (bool): Enable brightness filter.
+        brightness_threshold (float): Threshold for brightness.
+        motion_bool (bool): Enable motion filter.
+        motion_threshold (float): Threshold for motion.
+        noise_bool (bool): Enable noise filter.
+        noise_threshold (float): Threshold for noise.
     """
-    config = OmegaConf.load(f"../config/{args.config}.yaml")
-    input_video_path = config.path.data.input
-    output_video_path = config.path.data.preprocessing_output
-    log_file_path = config.path.log.preprocessing_log  # Path to the text log file
+    # Create a temporary directory to store the output video and log file
+    temp_dir = tempfile.mkdtemp()
 
-    # Create the output directory if it doesn't exist.
-    os.makedirs(output_video_path[:15], exist_ok=True)
-    os.makedirs(log_file_path[:7], exist_ok=True)
+    # Define the paths for the output video and log file within the temporary directory
+    output_video_path = os.path.join(temp_dir, 'output_video.mp4')
+    log_file_path = os.path.join(temp_dir, 'processing_log.txt')
 
-    # TODO: Handle threshold values and boolean info through config file
-    brightness_bool = config.preprocessing.brightness_bool
-    motion_bool = config.preprocessing.motion_bool
-    noise_bool = config.preprocessing.noise_bool
-    
-    quality_threshold = config.preprocessing.quality_threshold
-    brightness_threshold = config.preprocessing.brightness_threshold
-    motion_threshold = config.preprocessing.motion_threshold
-    noise_threshold = config.preprocessing.noise_threshold
+    # Save the uploaded file to a temporary location
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_file:
+        temp_file.write(uploaded_file.read())
+        temp_file_path = temp_file.name
 
-    cap = cv2.VideoCapture(input_video_path)
-    ret, frame = cap.read()
-    prev_frame = frame
+    cap = cv2.VideoCapture(temp_file_path)
 
     if not cap.isOpened():
-        logger.warning(f"Unable to load the video. File path: {input_video_path}")
+        print(f"Unable to load the video. File path: {temp_file_path}")
         return
 
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
@@ -125,13 +122,13 @@ def main(args):
             ret, frame = cap.read()
 
             if not ret:
-                logger.warning(f"Reached the end of the video or encountered an issue while reading the video. File path: {input_video_path}")
+                logger.warning(f"Reached the end of the video or encountered an issue while reading the video. File path: {temp_file_path}")
                 break
 
             frame_quality = cv2.mean(frame)[0]
             exclude_reasons = []  # Store reasons for frame exclusion
 
-            if frame_quality < quality_threshold:
+            if quality_bool and frame_quality < quality_threshold:
                 exclude_reasons.append("Quality below threshold")
 
             if brightness_bool and is_dark(frame, brightness_threshold):
@@ -168,9 +165,5 @@ def main(args):
     cap.release()
     out.release()
     cv2.destroyAllWindows()
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--config", "-c", type=str, default="base_config")
-    args, _ = parser.parse_known_args()
-    main(args)
+    
+    return output_video_path, log_file_path
