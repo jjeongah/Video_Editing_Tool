@@ -3,6 +3,7 @@ from preprocessing import preprocessing
 from timeline import timeline
 from io import BytesIO
 
+
 st.title("Video Editing Tool")
 st.header("STEP 1: Please upload a video or enter a YouTube URL")
 
@@ -28,12 +29,14 @@ elif upload_option == "YouTube URL":
         current_step = 2
         st.success("Video processing complete! Move onto processing step.")
         st.markdown('---')  # Add a horizontal rule
+
+        
 # ===================== Step 2: Set Preprocessing Parameters =====================
 if current_step == 2:
-    st.header("STEP 2-1: Choose preprocessing Parameters")
+    st.header("STEP 2-1: Choose preprocessing parameters")
 
     # Load the video for preview
-    st.subheader("Video Preview")
+    st.subheader("Raw Video Preview")
     
     # Check if video_url is a file or a YouTube URL
     if isinstance(video_url, BytesIO):
@@ -73,28 +76,40 @@ if current_step == 2:
 
     # Disable UI elements if processing has started
     if processing_started:
-        st.write("Processing has started. Parameters cannot be modified.")
+        st.subheader("Processing has started. Parameters cannot be modified.")
+        
+        
 # ===================== Step 3: Display Processed Video or Results =====================
 if current_step == 3:
     # Display selected parameter information
     st.subheader("Selected Parameters")
+    
     st.write(f"Quality Threshold: {quality_threshold}")
     st.write(f"Brightness Filter: {brightness_bool} (Threshold: {brightness_threshold})")
     st.write(f"Motion Filter: {motion_bool} (Threshold: {motion_threshold})")
     st.write(f"Noise Filter: {noise_bool} (Threshold: {noise_threshold})")
-    st.markdown('---')  # Add a horizontal rule
     
-    output_video_path, log_file_path = preprocessing(video_url, quality_bool, quality_threshold, brightness_bool, brightness_threshold, motion_bool, motion_threshold, noise_bool, noise_threshold)
-
-    st.header("STEP 2-2: Processed Video or Results")
+    preprocessing_output_video_path, log_file_path = preprocessing(video_url, quality_bool, quality_threshold, brightness_bool, brightness_threshold, motion_bool, motion_threshold, noise_bool, noise_threshold)
+    st.header("STEP 2-2: Processed Video (Results)")
 
     # Display the processed video
-    st.video(output_video_path, format="video/mp4", start_time=0)
+    st.video(preprocessing_output_video_path, format="video/mp4", start_time=0)
 
     # Display frame exclusion reasons from the log file
     with open(log_file_path, 'r') as log_file:
         reasons = log_file.read()
         st.text("Frame Exclusion Reasons:")
         st.text(reasons)
+        
+    if st.button("Detect Timeline"):
+        current_step = 4
     st.markdown('---')  # Add a horizontal rule
-# ===================== Step 4: Display Processed Video or Results =====================
+    
+    
+# ===================== Step 4: Detect timeline =====================
+if current_step == 4:
+    # Call the timeline function and pass the output_video_path
+    timeline_output = timeline(preprocessing_output_video_path)
+    st.subheader("Detecting timeline has started.")
+
+    st.text(timeline_output)
