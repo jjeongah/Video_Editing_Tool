@@ -100,16 +100,14 @@ if current_step == 3:
         reasons = log_file.read()
         st.text("Frame Exclusion Reasons:")
         st.text(reasons)
-        
-    if st.button("Detect Timeline"):
-        current_step = 4
-    st.markdown('---')  # Add a horizontal rule
-    
-    
-# ===================== Step 4: Detect timeline =====================
-if current_step == 4:
-    # Call the timeline function and pass the output_video_path
-    timeline_output = timeline(preprocessing_output_video_path)
-    st.subheader("Detecting timeline has started.")
 
+# ===================== Step 4: Detect timeline =====================
+    st.button("Detect Timeline")
+    st.markdown('---')
+    st.subheader("Timeline detection has started")
+    timeline_output = timeline(preprocessing_output_video_path)
     st.text(timeline_output)
+
+    st.button("Generate shorts")
+    st.markdown('---')
+# ===================== Step 5: Generate shorts =====================

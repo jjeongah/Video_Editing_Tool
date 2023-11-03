@@ -1,23 +1,15 @@
 import cv2
 import os
-import argparse
-from omegaconf import OmegaConf
 
 import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def main(args):
+def generate_shorts(args):
     """
     Extracts video clips based on scene information from a timeline log file.
     
-    Args:
-        args (argparse.Namespace): Command-line arguments.
-
-    Returns:
-        None
     """
-    config = OmegaConf.load(f"../config/{args.config}.yaml")   
     timeline_log =  config.path.log.timeline_log
     input_video_path = config.path.data.preprocessing_output
     output_shorts_path = config.path.data.shorts_output
@@ -90,9 +82,3 @@ def main(args):
     cap.release()
 
     print("🔥 Video clips extracted successfully.")
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--config", "-c", type=str, default="base_config")
-    args, _ = parser.parse_known_args()
-    main(args)
