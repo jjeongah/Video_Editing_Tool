@@ -9,6 +9,7 @@
 ## Demo Video
 
 ## System Architecture
+![image](https://github.com/jjeongah/Video_Editing_Tool/assets/65378914/d06c162a-7d6a-4bec-b0cd-478ef7528637)
 
 ## Datasets
 - Video Content Highlights Editing and Description (Summary) Data [AI Hub link](https://www.aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&aihubDataSe=realm&dataSetSn=616)
