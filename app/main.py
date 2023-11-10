@@ -1,6 +1,7 @@
 import streamlit as st
 from preprocessing import preprocessing
 from timeline import timeline
+from generate_shorts import generate_shorts
 from io import BytesIO
 
 
@@ -77,7 +78,8 @@ if current_step == 2:
     # Disable UI elements if processing has started
     if processing_started:
         st.subheader("Processing has started. Parameters cannot be modified.")
-        
+    
+    # TODO: show tdqm in the screen
         
 # ===================== Step 3: Display Processed Video or Results =====================
 if current_step == 3:
@@ -102,6 +104,7 @@ if current_step == 3:
         st.text(reasons)
 
 # ===================== Step 4: Detect timeline =====================
+# TODO: enable the button to move next step
     st.button("Detect Timeline")
     st.markdown('---')
     st.subheader("Timeline detection has started")
@@ -110,4 +113,15 @@ if current_step == 3:
 
     st.button("Generate shorts")
     st.markdown('---')
+    
 # ===================== Step 5: Generate shorts =====================
+# TODO: enable the button to move next step
+    st.button("Generate shots")
+    st.markdown('---')
+    videos = generate_shorts(timeline_output, preprocessing_output_video_path)
+    
+    # Display the generated video clips
+    if videos:
+        st.subheader("Generated Video Clips")
+        for video_path in videos:
+            st.video(video_path, format="video/mp4", start_time=0)
