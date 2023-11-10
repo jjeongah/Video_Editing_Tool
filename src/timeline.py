@@ -58,6 +58,7 @@ def main(args):
             f.write(f"Scene {i + 1}: Start frame {scene[0]} - End frame {scene[1]}\n")
 
     video_manager.release() # Release the video manager.
+    logger.info("🔥 Scene detection ended.")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
