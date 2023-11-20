@@ -2,6 +2,7 @@ import streamlit as st
 from preprocessing import preprocessing
 from timeline import timeline
 from generate_shorts import generate_shorts
+from detect_category import detect_category
 from io import BytesIO
 
 # Define the steps
@@ -134,7 +135,8 @@ if current_step == 4:
                 st.text("Detected Timeline:")
                 st.text(timeline_content)
             else:
-                st.error("Error: Timeline log not found. Please check if video is too short.")
+                st.error("Error: Timeline log not found. Please check if video is too short. Please upload new video.")
+                current_step = 1
                 
         current_step += 1 
 
@@ -147,11 +149,12 @@ import os
 if current_step == 5:
     with st.form("step_5_form"):
         st.header("STEP 4-1: Detect Category")
-        st.success("Category detection has automatically started")
+        st.success("Category detection has automatically started. 10 random scenes are extracted from video to detect category.")
         # TODO: detect category
+        most_common_category = detect_category(preprocessing_output_video_path)
         
         # Add a message below the video
-        st.markdown("**Category seems like Animal**", unsafe_allow_html=True)
+        st.markdown(f"**Most Common Detected Category: {most_common_category}**", unsafe_allow_html=True)
         
         # Create radio options to choose from
         selected_category = st.radio("Select a category:", ("Animal", "Beauty", "Sports", "Food", "ETC"))

@@ -2,7 +2,7 @@ import cv2
 import os
 from tqdm import tqdm 
 import tempfile
-
+import streamlit as st
 import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -120,9 +120,11 @@ def preprocessing(uploaded_file, quality_bool, quality_threshold, brightness_boo
     deleted_frames = []  # Store deleted frame information
 
     with open(log_file_path, 'w') as log_file:
+        processed_frames = 0        
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        
         while True:
             ret, frame = cap.read()
-
             if not ret:
                 logger.warning(f"Reached the end of the video or encountered an issue while reading the video. File path: {temp_file_path}")
                 break
@@ -154,11 +156,14 @@ def preprocessing(uploaded_file, quality_bool, quality_threshold, brightness_boo
                         deleted_frames[-1] = (last_deleted_time, f"{last_deleted_reason} - {exclude_reasons[0]}")
                     deleted_frames[-1] = (last_deleted_time, exclude_reasons[0])
 
+            processed_frames += 1
+            progress_percent = processed_frames / total_frames * 100
+            if progress_percent == 25.00 or progress_percent == 50.00 or progress_percent == 75.00:
+                st.text(f"Processing: {progress_percent:.2f}%")
             frame_count += 1
             prev_frame = frame
 
-            if frame_count % 10 == 0:
-                logger.info(f"Processed {frame_count} frames, Saved {saved_frame_count} frames")
+            logger.info(f"Processed {frame_count} frames, Saved {saved_frame_count} frames")
 
             # Update the tqdm progress bar
             progress_bar.update(1)

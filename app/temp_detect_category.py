@@ -18,19 +18,6 @@ imagenet_labels = {
     'n07697537': 'Food'
 }
 
-
-def detect_category(input_video_path):
-    if input_video_path is not None:
-        st.video(input_video_path, format="video/mp4")
-
-        # Process video and detect categories
-        categories = process_video(input_video_path)
-        
-        # Find the most common category
-        most_common_category = max(set(categories), key=categories.count)
-        
-        return most_common_category
-
 def predict_category(img_array):
     # Make predictions
     predictions = model.predict(img_array)
@@ -41,8 +28,7 @@ def predict_category(img_array):
 
     # Map ImageNet class index to human-readable label
     category = imagenet_labels.get(top_class_index, 'Unknown')
-    st.text(f"Screenshot category: {category}\n")
-    
+
     return category
 
 def process_video(video_path, num_frames=10):
@@ -77,3 +63,23 @@ def process_video(video_path, num_frames=10):
     cap.release()
 
     return categories
+
+# Streamlit UI
+st.title("Video Category Detection")
+
+uploaded_file = st.file_uploader("Choose a video file...", type=["mp4"])
+
+if uploaded_file is not None:
+    # Save the uploaded video to a temporary location
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_video:
+        temp_video.write(uploaded_file.read())
+        temp_video_path = temp_video.name
+
+    st.video(uploaded_file, format="video/mp4")
+
+    # Process video and detect categories
+    categories = process_video(temp_video_path)
+    
+    # Find the most common category
+    most_common_category = max(set(categories), key=categories.count)
+    st.success(f"Most Common Category: {most_common_category}")
