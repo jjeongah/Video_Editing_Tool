@@ -126,10 +126,10 @@ if current_step == 4:
     with st.form("step_4_form"):
         st.header("STEP 3: Detect Timeline")
         st.success("Timeline detection has automatically started")
-        timeline_output_path = timeline(preprocessing_output_video_path)
-        print(timeline_output_path)
+        timeline_output_dir = timeline(preprocessing_output_video_path)
+        print("timeline_output_dir:", timeline_output_dir)
         # TODO: open timeline log and show text
-        with open(timeline_output_path, 'r') as log_file:
+        with open(timeline_output_dir, 'r') as log_file:
             timeline_content = log_file.read()
             if timeline_content:
                 st.text("Detected Timeline:")

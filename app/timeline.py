@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 def timeline(input_video_path):
     """
-    Perform scene detection on a video and return the scene list as a log.
+    Perform scene detection on a video and save the scene list to 'timeline_log.txt'.
     """
     scene_log = ""
 
@@ -33,4 +33,12 @@ def timeline(input_video_path):
 
     video_manager.release()  # Release the video manager.
 
-    return scene_log
+    # Save the scene log to 'timeline_log.txt' in the 'data/log' folder
+    log_folder = os.path.join('data', 'log')
+    os.makedirs(log_folder, exist_ok=True)
+    log_file_path = os.path.join(log_folder, 'timeline_log.txt')
+
+    with open(log_file_path, 'w') as log_file:
+        log_file.write(scene_log)
+
+    return log_file_path
