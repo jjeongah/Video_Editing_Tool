@@ -135,7 +135,8 @@ if current_step == 4:
                 st.text("Detected Timeline:")
                 st.text(timeline_content)
             else:
-                st.text("None of the part is excluded")  
+                st.text("Video is too short or there is no content to make the timeline")  
+                ## TODO: error
                 
         current_step += 1 
 
@@ -147,44 +148,50 @@ import zipfile
 import os
 if current_step == 5:
     with st.form("step_5_form"):
-        st.success("Category detection has automatically started")
         st.header("STEP 4-1: Detect Category")
+        st.success("Category detection has automatically started")
+        # TODO: detect category
+        
         # Add a message below the video
         st.markdown("**Category seems like Animal**", unsafe_allow_html=True)
         
         # Create radio options to choose from
         selected_category = st.radio("Select a category:", ("Animal", "Beauty", "Sports", "Food", "ETC"))
-    
+
+        current_step +=1
         if st.form_submit_button("Generate shots"):
-            current_step +=1
             st.success("Category is selected!")
 
-
+        
 # ===================== Step 6: Download shorts =====================
 if current_step == 6:
-    videos = generate_shorts(timeline_output, preprocessing_output_video_path)
-                
-    # Display the generated video clips
-    if videos:
-        st.subheader("Generated Video Clips")
-        for video_path in videos:
-            st.video(video_path, format="video/mp4", start_time=0)
+    with st.form("step_6_form"):
+        st.header("STEP 5: Download shorts")
+        st.success("Shorts are generating!")
+        videos = generate_shorts(timeline_content, preprocessing_output_video_path)
+                    
+        # Display the generated video clips
+        if videos:
+            st.subheader("Generated Video Clips")
+            st.success("Shorts are generated!")
+            for video_path in videos:
+                st.video(video_path, format="video/mp4", start_time=0)
 
-    download_button_clicked = st.form_submit_button("Download shorts")
+        download_button_clicked = st.form_submit_button("Download shorts")
 
-    if download_button_clicked:
-        # Add logic to create a zip file or download individual files
-        # For example, you can use the following code to create a zip file and download it:
-        zip_filename = "generated_shorts.zip"
-        with st.spinner("Creating Zip file..."):
-            # Add logic to create a zip file containing the generated shorts
-            # You may need to modify this based on how your 'generate_shorts' function works
-            # For example, you can use the zipfile library to create a zip file
-            # and add the generated shorts to the zip file
-            # After creating the zip file, provide a link for download
-            # For demonstration purposes, I'm assuming 'videos' is a list of file paths
-            with zipfile.ZipFile(zip_filename, 'w') as zip_file:
-                for video_path in videos:
-                    zip_file.write(video_path, os.path.basename(video_path))
+        if download_button_clicked:
+            # Add logic to create a zip file or download individual files
+            # For example, you can use the following code to create a zip file and download it:
+            zip_filename = "generated_shorts.zip"
+            with st.spinner("Creating Zip file..."):
+                # Add logic to create a zip file containing the generated shorts
+                # You may need to modify this based on how your 'generate_shorts' function works
+                # For example, you can use the zipfile library to create a zip file
+                # and add the generated shorts to the zip file
+                # After creating the zip file, provide a link for download
+                # For demonstration purposes, I'm assuming 'videos' is a list of file paths
+                with zipfile.ZipFile(zip_filename, 'w') as zip_file:
+                    for video_path in videos:
+                        zip_file.write(video_path, os.path.basename(video_path))
 
-        st.success(f"[Download Zip File]({zip_filename})")
+            st.success(f"[Download Zip File]({zip_filename})")
