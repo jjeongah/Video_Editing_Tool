@@ -128,15 +128,13 @@ if current_step == 4:
         st.success("Timeline detection has automatically started")
         timeline_output_dir = timeline(preprocessing_output_video_path)
         print("timeline_output_dir:", timeline_output_dir)
-        # TODO: open timeline log and show text
         with open(timeline_output_dir, 'r') as log_file:
             timeline_content = log_file.read()
             if timeline_content:
                 st.text("Detected Timeline:")
                 st.text(timeline_content)
             else:
-                st.text("Video is too short or there is no content to make the timeline")  
-                ## TODO: error
+                st.error("Error: Timeline log not found. Please check if video is too short.")
                 
         current_step += 1 
 
