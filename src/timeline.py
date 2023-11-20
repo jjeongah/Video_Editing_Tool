@@ -1,35 +1,25 @@
 from scenedetect import VideoManager
 from scenedetect import SceneManager
 from scenedetect.detectors import ContentDetector
-import argparse
-from omegaconf import OmegaConf
 import os
+import tempfile
 
 import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def main(args):
-    """
-    Perform scene detection on a video and save the scene list to a text file.
-
-    Args:
-        args (argparse.Namespace): Command-line arguments.
-
-    This function uses the PySceneDetect library to detect scenes in a video and
-    saves the scene list to a text file specified in the configuration file.
-
-    """
-    config = OmegaConf.load(f"../config/{args.config}.yaml")
-    input_video_path = config.path.data.preprocessing_output
-    output_scene_list_path = config.path.log.timeline_log
-    
-    # Create the output directory if it doesn't exist.
-    os.makedirs(output_scene_list_path[:7], exist_ok=True)
-    
-    print(output_scene_list_path[:7])
+def main(input_video_path):
     video_manager = VideoManager([input_video_path])
 
+    # Create a temporary directory to store the output video and log file
+    temp_dir = tempfile.mkdtemp()
+
+    # Define the paths for the output video and log file within the temporary directory
+    output_scene_list_path = os.path.join(temp_dir, 'output/')
+    
+    # Ensure the output directory exists
+    os.makedirs(output_scene_list_path, exist_ok=True)
+    
     # Create a SceneManager and add ContentDetector to it.
     scene_manager = SceneManager()
     scene_manager.add_detector(ContentDetector())
@@ -59,9 +49,4 @@ def main(args):
 
     video_manager.release() # Release the video manager.
     logger.info("🔥 Scene detection ended.")
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--config", "-c", type=str, default="base_config")
-    args, _ = parser.parse_known_args()
-    main(args)
+    return output_scene_list_path
