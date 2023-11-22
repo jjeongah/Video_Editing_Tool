@@ -157,7 +157,10 @@ if current_step == 5:
         st.markdown(f"**Most Common Detected Category: {most_common_category}**", unsafe_allow_html=True)
         
         # Create radio options to choose from
+        # TODO: button bug
         selected_category = st.radio("Select a category:", ("Animal", "Beauty", "Sports", "Food", "ETC"))
+        
+        # TODO: each category characteristic func
 
         current_step +=1
         if st.form_submit_button("Generate shots"):
@@ -165,6 +168,9 @@ if current_step == 5:
 
         
 # ===================== Step 6: Download shorts =====================
+import tempfile
+import shutil
+
 if current_step == 6:
     with st.form("step_6_form"):
         st.header("STEP 5: Download shorts")
@@ -174,25 +180,33 @@ if current_step == 6:
         # Display the generated video clips
         if videos:
             st.subheader("Generated Video Clips")
-            st.success("Shorts are generated!")
-            for video_path in videos:
+            selected_videos = st.multiselect("Select videos to download", videos)
+
+            for video_path in selected_videos:
                 st.video(video_path, format="video/mp4", start_time=0)
 
-        download_button_clicked = st.form_submit_button("Download shorts")
+            download_button_clicked = st.form_submit_button("Download shorts")
 
-        if download_button_clicked:
-            # Add logic to create a zip file or download individual files
-            # For example, you can use the following code to create a zip file and download it:
-            zip_filename = "generated_shorts.zip"
-            with st.spinner("Creating Zip file..."):
-                # Add logic to create a zip file containing the generated shorts
-                # You may need to modify this based on how your 'generate_shorts' function works
-                # For example, you can use the zipfile library to create a zip file
-                # and add the generated shorts to the zip file
-                # After creating the zip file, provide a link for download
-                # For demonstration purposes, I'm assuming 'videos' is a list of file paths
-                with zipfile.ZipFile(zip_filename, 'w') as zip_file:
-                    for video_path in videos:
-                        zip_file.write(video_path, os.path.basename(video_path))
+            if download_button_clicked and selected_videos:
+                # Create a temporary directory to store selected videos
+                temp_dir = tempfile.mkdtemp()
 
-            st.success(f"[Download Zip File]({zip_filename})")
+                # Copy selected videos to the temporary directory
+                for video_path in selected_videos:
+                    video_name = os.path.basename(video_path)
+                    temp_video_path = os.path.join(temp_dir, video_name)
+                    shutil.copy(video_path, temp_video_path)
+
+                # Create a zip file
+                zip_filename = "selected_shorts.zip"
+                with st.spinner("Creating Zip file..."):
+                    with zipfile.ZipFile(zip_filename, 'w') as zip_file:
+                        for video_path in selected_videos:
+                            video_name = os.path.basename(video_path)
+                            zip_file.write(video_path, video_name)
+
+                # Provide a link for download
+                st.success(f"[Download Zip File]({zip_filename})")
+
+                # Cleanup: Delete the temporary directory
+                shutil.rmtree(temp_dir)
